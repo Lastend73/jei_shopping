@@ -1,22 +1,9 @@
 import mysql
 import mysql.connector
+from db_mysql import create_connection
 
 from mysql.connector import Error
 
-# MySQL 데이터베이스에 연결을 생성하는 함수
-def create_connection():
-    connection = None
-    try:
-        connection = mysql.connector.connect(
-            host='mall.jeisys.com',
-            user="jeisys_main",
-            passwd="o4#BUtd61F",
-            database="jeisys_main"
-        )
-        print("MySQL DB에 성공적으로 연결되었습니다")
-    except Error as e:
-        print(f"다음 오류가 발생했습니다: '{e}'")
-    return connection
 
 # MySQL 데이터베이스에서 데이터를 읽는 쿼리를 실행하는 함수
 def execute_read_query(connection, query):
