@@ -1,6 +1,6 @@
 import mysql
 import mysql.connector
-from db_mysql import create_connection
+from connect_db import create_connection
 
 from mysql.connector import Error
 

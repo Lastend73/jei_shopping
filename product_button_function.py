@@ -7,6 +7,7 @@ import time
 import openpyxl
 import os
 from openpyxl.styles import Alignment
+import traceback
 
 
 product_path = "info\품목정보.csv"
@@ -121,6 +122,9 @@ def on_pushButton_5_clicked(): #데이터 출력
     hospital_info_list =[]
     product_info_list =[]
     package_list = []
+    unmatched_set = set()
+    unmatched_rows = []
+    matched_rows = []
 
     with open(hospital_path, mode='r', encoding='cp949') as file:
         csv_datas= csv.reader(file)
@@ -135,7 +139,7 @@ def on_pushButton_5_clicked(): #데이터 출력
             product_info_list.append(csv_data)
 
     
-    folder_path = QFileDialog.getExistingDirectory()
+    folder_path = 'result'
     if folder_path:
         results = get_data.get_order_data()
         point_use_list = get_data.get_point_use_list()
@@ -168,21 +172,24 @@ def on_pushButton_5_clicked(): #데이터 출력
                 delete_number_list_check.append(point_use[0])
             
             delete_number_list = []
-            print(delete_number_list_check)
             for result in results:
                 if int(result[0]) in delete_number_list_check:
                     delete_number_list.append(int(result[0]))
                     continue
-
+            for i in range(len(results)):
+                results[i] = list(results[i]) 
             row_num = 2  # 데이터가 시작될 행 번호 (헤더 다음 행)
             transaction_number_dic = {} #거래번호 리스트
+
             for result in results:
+                print(result[0] in delete_number_list , result[0])
                 if result[0] in delete_number_list:
                     transaction_number_dic[result[0]] = result[1]
-                    continue
+                    # print(delete_number_list)
+                    # print(result[0])
+                    print(result)
+                    results.remove(result)
                 else:
-                    result = list(result)
-                    # print(result)
                     phone_num = result[21][:14]
                     note = result[21][14:]
                     if result[8] == "신용카드":
@@ -201,6 +208,8 @@ def on_pushButton_5_clicked(): #데이터 출력
                             break
                     if hospital_check_index == -1:
                         result[1] = result[1] + " (미등록)"
+                        print("a")
+                        unmatched_set.add(result[0]) 
 
                     product_check_index = -1
                     for product_info in product_info_list:
@@ -221,25 +230,35 @@ def on_pushButton_5_clicked(): #데이터 출력
                                     break
                     if product_check_index == -1:
                         result[10] = result[10] + " (미등록)"
+                        print("a")
+                        unmatched_set.add(result[0])
 
-                    for col_num, value in enumerate(result, 1):
-                        sheet.cell(row=row_num, column=col_num, value=value)
-                    row_num += 1
+                    if result[0] in unmatched_set:
+                        unmatched_rows.append(result)
+                    else:
+                        matched_rows.append(result)    
+
+            results = unmatched_rows + matched_rows
+            for result in results:
+                for col_num, value in enumerate(result, 1):
+                    sheet.cell(row=row_num, column=col_num, value=value)
+                row_num += 1
 
             for row in sheet.iter_rows(min_row=1):
                 cell = row[21]
+                cell.alignment = Alignment(wrap_text=True)  # 비고란 자동 줄바꿈
                 if "(미등록)" in row[1].value :
                     row[1].font = openpyxl.styles.Font(color="FF0000")  # 고객코드 빨간색
                     row[1].alignment = Alignment(vertical='center')  
                 if "(미등록)" in row[10].value :
                     row[10].font = openpyxl.styles.Font(color="FF0000")
                     row[10].alignment = Alignment(vertical='center')  
-                cell.alignment = Alignment(wrap_text=True)  # 비고란 자동 줄바꿈
                 for i in range(2,4) : 
                     row[i].alignment = Alignment(horizontal='center',vertical='center')  # 오더일 납품예정일 중앙정렬
                 for i in [12, 14, 15, 16]:
                     row[i].number_format = '#,##0'
                     row[i].alignment = Alignment(horizontal='right',vertical='center')  # 수량, 공급가액, 부가세, 총액 오른쪽 정렬
+            
 
             workbook.save(f'{folder_path}/{time.strftime("%Y_%m_%d_%H_%M")}_판매오더.xlsx')
             memo = open(f'{folder_path}/{time.strftime("%Y_%m_%d_%H_%M")}_패키지_주문리스트.txt', 'w')
@@ -260,6 +279,8 @@ def on_pushButton_5_clicked(): #데이터 출력
             msgBox.setIcon(QMessageBox.Information) # 메세지창 내부에 표시될 아이콘
             msgBox.setText("문제발생") # 메세지 제목
             msgBox.exec()
+            print("An error occurred:")
+            print(traceback.format_exc())
     else:
         msgBox = QMessageBox()
         msgBox.setWindowTitle("Alert Window") # 메세지창의 상단 제목

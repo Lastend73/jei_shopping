@@ -4,3 +4,4 @@ __pycache__
 *.exe
 *.spec
 connect_db.py
+result
