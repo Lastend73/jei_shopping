@@ -45,7 +45,7 @@ def get_order_data() :
                         '12개월' AS '보증개월 수',
                         'N' AS '무상여부',
                         CONCAT(a.phone,' ',o.customer_note) AS '비고',
-                        'N' AS '가격정책예외'
+                        'Y' AS '가격정책예외'
                     FROM
                         jeisys_main.8sN2fUx_wc_orders o
                             INNER JOIN

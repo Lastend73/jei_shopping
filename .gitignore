@@ -5,3 +5,6 @@ __pycache__
 *.spec
 connect_db.py
 result
+info
+
+
