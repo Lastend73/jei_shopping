@@ -37,38 +37,6 @@ class Ui_MainWindow(object):
             self.tabWidget.setObjectName(u"tabWidget")
             self.tabWidget.setGeometry(QRect(5, 5, 890, 290))
 
-            self.tab = QWidget()
-            self.tab.setObjectName(u"tab")
-
-            self.pushButton_2 = QPushButton(self.tab)
-            self.pushButton_2.setObjectName(u"pushButton_2")
-            # self.pushButton_2.clicked.connect(self.on_pushButton_2_clicked)
-            self.pushButton_2.clicked.connect(self.on_pushButton_2_clicked)
-            self.pushButton_2.setGeometry(QRect(10, 10, 75, 24))
-
-            self.pushButton_3 = QPushButton(self.tab)
-            self.pushButton_3.setObjectName(u"pushButton_3")
-            self.pushButton_3.clicked.connect(self.on_pushButton_3_clicked)
-            self.pushButton_3.setGeometry(QRect(90, 10, 75, 24))
-            self.tableWidget = QTableWidget(self.tab)
-            if (self.tableWidget.columnCount() < 4):
-                self.tableWidget.setColumnCount(4)
-            __qtablewidgetitem = QTableWidgetItem()
-            self.tableWidget.setHorizontalHeaderItem(0, __qtablewidgetitem)
-            __qtablewidgetitem1 = QTableWidgetItem()
-            self.tableWidget.setHorizontalHeaderItem(1, __qtablewidgetitem1)
-            __qtablewidgetitem2 = QTableWidgetItem()
-            self.tableWidget.setHorizontalHeaderItem(2, __qtablewidgetitem2)
-            __qtablewidgetitem3 = QTableWidgetItem()
-            self.tableWidget.setHorizontalHeaderItem(3, __qtablewidgetitem3)
-            self.tableWidget.setObjectName(u"tableWidget")
-            self.tableWidget.setGeometry(QRect(10, 40, 860, 190))
-
-            self.tableWidget.horizontalHeader().setDefaultSectionSize(220)
-            self.tableWidget.verticalHeader().setVisible(False)
-            
-            self.tabWidget.addTab(self.tab, "")
-
             # 품목 탭
             self.tab1 = QWidget()
             self.tab1.setObjectName(u"tab1")
@@ -109,17 +77,20 @@ class Ui_MainWindow(object):
             self.pushButton_5.setObjectName(u"pushButton_5")
             self.pushButton_5.clicked.connect(self.on_pushButton_5_clicked)
             self.pushButton_5.setGeometry(QRect(35, 25, 800, 200))
+            self.pushButton_5.setEnabled(False)  # 초기에 비활성화 상태로 설정
 
             self.tabWidget.addTab(self.tab2, "")
             MainWindow.setCentralWidget(self.centralwidget)
             self.statusbar = QStatusBar(MainWindow)
-            self.statusbar.setObjectName(u"statusbar")
+            self.statusbar.setObjectName(u"statusba ")
             MainWindow.setStatusBar(self.statusbar)
 
             self.retranslateUi(MainWindow)
 
             self.tabWidget.setCurrentIndex(0)
 
+            # 프로그램 시작 시 자동으로 품목코드 조회
+            self.on_pushButton_clicked()
 
             QMetaObject.connectSlotsByName(MainWindow)
         except Exception as e:
@@ -129,19 +100,8 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"쇼핑몰 데이터 가져오기", None))
         self.pushButton.setText(QCoreApplication.translate("MainWindow", u"품목 조회", None))
-        self.pushButton_2.setText(QCoreApplication.translate("MainWindow", u"병원 조회", None))
-        self.pushButton_3.setText(QCoreApplication.translate("MainWindow", u"수정", None))
         self.pushButton_5.setText(QCoreApplication.translate("MainWindow", u"데이터 출력하기", None))
         self.pushButton_6.setText(QCoreApplication.translate("MainWindow", u"수정", None))
-
-        ___qtablewidgetitem = self.tableWidget.horizontalHeaderItem(0)
-        ___qtablewidgetitem.setText(QCoreApplication.translate("MainWindow", u"병원코드(쇼핑몰)", None));
-        ___qtablewidgetitem1 = self.tableWidget.horizontalHeaderItem(1)
-        ___qtablewidgetitem1.setText(QCoreApplication.translate("MainWindow", u"병원명", None));
-        ___qtablewidgetitem2 = self.tableWidget.horizontalHeaderItem(2)
-        ___qtablewidgetitem2.setText(QCoreApplication.translate("MainWindow", u"주소", None));
-        ___qtablewidgetitem3 = self.tableWidget.horizontalHeaderItem(3)
-        ___qtablewidgetitem3.setText(QCoreApplication.translate("MainWindow", u"병원코드(SAP)", None));
 
         ___qtablewidgetitem4 = self.tableWidget_2.horizontalHeaderItem(0)
         ___qtablewidgetitem4.setText(QCoreApplication.translate("MainWindow", "제품코드(쇼핑몰)", None));
@@ -152,31 +112,21 @@ class Ui_MainWindow(object):
         ___qtablewidgetitem7 = self.tableWidget_2.horizontalHeaderItem(3)
         ___qtablewidgetitem7.setText(QCoreApplication.translate("MainWindow", "수량", None));
 
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QCoreApplication.translate("MainWindow", u"병원코드 맵핑", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab1), QCoreApplication.translate("MainWindow", u"품목코드 맵핑", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab2), QCoreApplication.translate("MainWindow", u"결과", None))
     # retranslateUi
 
-    def on_pushButton_2_clicked(self): #조회 버튼
-        print('조회 버튼 클릭')
-        product_button_function.on_pushButton_2_clicked(self.tableWidget)
+    def on_pushButton_clicked(self): #조회 버튼
+        print('품목 조회 버튼 클릭')
+        product_button_function.on_pushButton_clicked(self.tableWidget_2, self.pushButton_5)
 
-    def on_pushButton_3_clicked(self): #수정 버튼
-        print('수정 버튼 클릭')
-        product_button_function.on_pushButton_3_clicked(self.tableWidget)
+    def on_pushButton_6_clicked(self): #조회 버튼
+        print('품목 수정 버튼 클릭')
+        product_button_function.on_pushButton_6_clicked(self.tableWidget_2, self.pushButton_5)
 
     def on_pushButton_5_clicked(self): # 데이터 출려갛기 버튼
         print('출력 버튼 클릭')
         product_button_function.on_pushButton_5_clicked()
-
-    # 품목 탭
-    def on_pushButton_clicked(self): #조회 버튼
-        print('품목 조회 버튼 클릭')
-        product_button_function.on_pushButton_clicked(self.tableWidget_2)
-
-    def on_pushButton_6_clicked(self): #조회 버튼
-        print('품목 수정 버튼 클릭')
-        product_button_function.on_pushButton_6_clicked(self.tableWidget_2)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

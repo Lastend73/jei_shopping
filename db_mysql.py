@@ -24,13 +24,13 @@ def get_order_data() :
                     """
                     SELECT 
                         o.id AS '웹주문번호',
-                        c.first_name AS '고객코드',
+                        COALESCE(b.meta_value, c.first_name) AS '고객코드',
                         m.date AS '오더일',
                         CURDATE() AS '납품예정일',
                         '' AS '영업사원명',
                         1 AS '판매구분',
                         '' AS 출하유형,
-                        CONCAT(a.address_1, ' ', a.address_2) AS '납품처주소',
+                        COALESCE(CONCAT(a.address_1, ' ', a.address_2),a.address_1)AS '납품처주소',
                         o.payment_method_title AS '결제유형',
                         '' as '카드사정보',
                         i.order_item_name AS '품목코드',
@@ -44,8 +44,9 @@ def get_order_data() :
                         4 AS '수령방법',
                         '12개월' AS '보증개월 수',
                         'N' AS '무상여부',
-                        CONCAT(a.phone,' ',o.customer_note) AS '비고',
-                        'Y' AS '가격정책예외'
+                        CONCAT(a.phone,'/',o.customer_note) AS '비고',
+                        'Y' AS '가격정책예외',
+                        c.first_name AS '고객명'
                     FROM
                         jeisys_main.8sN2fUx_wc_orders o
                             INNER JOIN
@@ -72,6 +73,7 @@ def get_order_data() :
                         FROM
                             jeisys_main.8sN2fUx_wc_order_operational_data
                         ) m ON m.order_id = o.id
+                        LEFT JOIN jeisys_main.8sN2fUx_usermeta b ON b.user_id = c.user_id AND b.meta_key = 'business_number'
                     WHERE
                         o.status = 'wc-order-received'
                     ORDER BY o.id DESC
@@ -98,29 +100,6 @@ def get_point_use_list() :
     connection.close() # 연결을 닫습니다
     return results
 
-def get_hostpital_data() :
-    try : 
-        connection = create_connection()
-        results = execute_read_query(connection,
-                    """
-                        SELECT 
-                            c.user_id,
-                            first_name,
-                            CONCAT(d.meta_value, ' ', a.meta_value) AS address
-                        FROM
-                            jeisys_main.8sN2fUx_wc_customer_lookup c
-                                INNER JOIN
-                            jeisys_main.8sN2fUx_usermeta d ON d.user_id = c.user_id
-                                AND d.meta_key = 'mshop_billing_address-addr1'
-                                INNER JOIN
-                            jeisys_main.8sN2fUx_usermeta a ON a.user_id = c.user_id
-                                AND a.meta_key = 'mshop_billing_address-addr2'
-                    """)
-        connection.close() # 연결을 닫습니다
-        return results
-    except mysql.connector.Error as err:
-        print(f"Error: '{err}'") # 콘솔에 에러 표시
-        return None
 def get_product_data() :
     connection = create_connection()
     results = execute_read_query(connection,
