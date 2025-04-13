@@ -9,6 +9,7 @@ import os
 from openpyxl.styles import Alignment
 import traceback
 import re
+import pandas as pd
 
 product_path = "info\품목정보.csv"
 
@@ -104,7 +105,6 @@ def on_pushButton_5_clicked(): #데이터 출력
             # 모든 result 항목을 리스트로 변환
             for i in range(len(results)):
                 results[i] = list(results[i])
-            print(results)
             row_num = 2  # 데이터가 시작될 행 번호 (헤더 다음 행)
             transaction_number_dic = {} #거래번호 리스트
 
@@ -137,6 +137,16 @@ def on_pushButton_5_clicked(): #데이터 출력
                 if result[8] == "무통장입금":
                     result[8] = "T2"
                     result[21] = f"쇼핑몰 무통장 주문 건\n거래명세서 포함 택배요청\n배송요청: {note}\n연락처: {phone_num}\n배송지 :{result[7]}"
+                # 사업자 등록번호 미입력 계정 엑셀 파일 읽기
+                try:
+                    unregistered_df = pd.read_excel('./info/사업자 등록번호 미입력 계정.xlsx')
+                    # 3번째 열과 result[1] 비교하여 일치하면 5번째 열 값으로 변경
+                    for idx, row in unregistered_df.iterrows():
+                        if str(row.iloc[2]) == str(result[1]):
+                            result[1] = str(row.iloc[4])
+                            break
+                except Exception as e:
+                    print(f"사업자 등록번호 미입력 계정 파일 처리 중 오류 발생: {e}")
 
                 if not re.search(r'[a-zA-Z가-힣]',  result[1]): 
                     result[1]=re.sub(r'\D', '', result[1])
@@ -174,9 +184,7 @@ def on_pushButton_5_clicked(): #데이터 출력
                     matched_rows.append(result)    
 
             results = unmatched_rows + matched_rows
-            for r in results:
-                if r[0] == 25174:
-                    print(r)
+
             for result in results:
                 for col_num, value in enumerate(result[:-1], 1):  # 마지막 열을 제외하고 작성
                     sheet.cell(row=row_num, column=col_num, value=value)
