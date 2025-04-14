@@ -81,7 +81,7 @@ def on_pushButton_5_clicked(): #데이터 출력
             else:
                 workbook = openpyxl.Workbook()
                 sheet = workbook.active
-                header = ["웹주문번호", "고객코드", "오더일", "납품예정일", "영업사원명", "판매구분", "출하유형" , "납품처주소", "결제유형", "카드사정보", "품목코드", "수량", "단가", "통화", "공급가액", "부가세", "총액", "판매유형", "수령방법", "보증개월수", "무상여부", "비고", "가격정책예외"]
+                header = ["웹주문번호", "고객명", "고객코드", "오더일", "납품예정일", "영업사원명", "판매구분", "출하유형" , "납품처주소", "결제유형", "카드사정보", "품목명", "품목코드", "수량", "단가", "통화", "공급가액", "부가세", "총액", "판매유형", "수령방법", "보증개월수", "무상여부", "비고", "가격정책예외"]
                 sheet.append(header)
 
             delete_number_list_check = []
@@ -145,6 +145,8 @@ def on_pushButton_5_clicked(): #데이터 출력
                         if str(row.iloc[2]) == str(result[1]):
                             result[1] = str(row.iloc[4])
                             break
+                        elif str(row.iloc[2]) == str(result[-2]):
+                            result[1] = str(row.iloc[4])
                 except Exception as e:
                     print(f"사업자 등록번호 미입력 계정 파일 처리 중 오류 발생: {e}")
 
@@ -184,14 +186,18 @@ def on_pushButton_5_clicked(): #데이터 출력
                     matched_rows.append(result)    
 
             results = unmatched_rows + matched_rows
-
             for result in results:
-                for col_num, value in enumerate(result[:-1], 1):  # 마지막 열을 제외하고 작성
+                # 고객명과 품목명을 각각 고객코드와 품목코드 앞에 배치
+                result.insert(1, result[-2])  # 고객명을 고객코드 앞에 삽입
+                result.insert(11, result[-1])  # 품목명을 품목코드 앞에 삽입
+                result = result[:-2]  # 마지막 두 열(고객명, 품목명) 제거
+                for col_num, value in enumerate(result, 1):  # 마지막 열을 제외하고 작성
                     sheet.cell(row=row_num, column=col_num, value=value)
                 row_num += 1
 
+
             for row in sheet.iter_rows(min_row=1):
-                cell = row[21]
+                cell = row[23]
                 cell.alignment = Alignment(wrap_text=True)  # 비고란 자동 줄바꿈
                 if "(미등록)" in row[10].value :
                     row[10].font = openpyxl.styles.Font(color="FF0000")
@@ -200,7 +206,7 @@ def on_pushButton_5_clicked(): #데이터 출력
                 if row[1].value and not '-' in str(row[1].value) and "(미등록)" in str(row[1].value):
                     row[1].font = openpyxl.styles.Font(color="FF0000")
                     row[1].alignment = Alignment(vertical='center')
-                for i in range(2,4) : 
+                for i in range(3,5) : 
                     row[i].alignment = Alignment(horizontal='center',vertical='center')  # 오더일 납품예정일 중앙정렬
                 for i in [12, 14, 15, 16]:
                     row[i].number_format = '#,##0'

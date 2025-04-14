@@ -25,7 +25,7 @@ def get_order_data() :
                     SELECT 
                         o.id AS '웹주문번호',
                         COALESCE(b.meta_value, c.first_name) AS '고객코드',
-                        m.date AS '오더일',
+                        CURDATE() '오더일',
                         CURDATE() AS '납품예정일',
                         '' AS '영업사원명',
                         1 AS '판매구분',
@@ -46,7 +46,8 @@ def get_order_data() :
                         'N' AS '무상여부',
                         CONCAT(a.phone,'/',o.customer_note) AS '비고',
                         'Y' AS '가격정책예외',
-                        c.first_name AS '고객명'
+                        c.first_name AS '고객명',
+                        i.order_item_name AS '품목명'
                     FROM
                         jeisys_main.8sN2fUx_wc_orders o
                             INNER JOIN
@@ -67,12 +68,6 @@ def get_order_data() :
                             jeisys_main.8sN2fUx_woocommerce_order_itemmeta
                         WHERE
                             meta_key = '_line_total') x ON x.order_item_id = i.order_item_id
-                            INNER JOIN
-                        (SELECT 
-                        order_id, date_format(date_add(date_paid_gmt, INTERVAL 9 HOUR),'%Y-%m-%d') as date
-                        FROM
-                            jeisys_main.8sN2fUx_wc_order_operational_data
-                        ) m ON m.order_id = o.id
                         LEFT JOIN jeisys_main.8sN2fUx_usermeta b ON b.user_id = c.user_id AND b.meta_key = 'business_number'
                     WHERE
                         o.status = 'wc-order-received'
